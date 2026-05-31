@@ -796,7 +796,6 @@ const SHEET_URL = "https://script.google.com/a/macros/tld.tw/s/AKfycbxJk5Z0LcX9c
 async function submitForm() {
   const btn = document.getElementById('submitBtn');
 
-  // 收集資料
   const data = {
     name:          document.getElementById('name').value.trim(),
     route:         document.querySelector('input[name="route"]:checked')?.value || "",
@@ -815,20 +814,20 @@ async function submitForm() {
     overallComment: document.getElementById('overall-comment').value.trim()
   };
 
-  // 送出中狀態
   btn.disabled = true;
   btn.textContent = "⏳ 提交中…";
 
   try {
-    // Google Apps Script 需用 no-cors mode
+    // 使用 FormData 方式，相容組織帳號（tld.tw）跨域限制
+    const formData = new FormData();
+    formData.append("data", JSON.stringify(data));
+
     await fetch(SHEET_URL, {
       method: "POST",
       mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
+      body: formData
     });
 
-    // no-cors 無法讀取回應，只要不 throw 就視為成功
     btn.textContent = "✅ 已提交！";
     document.getElementById('success').classList.add('show');
     setTimeout(() => {
